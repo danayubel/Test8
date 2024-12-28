@@ -1,13 +1,14 @@
-version: '2.4'
+version: '2.2'
 
 networks:
   etsi-network:
     driver: bridge
 
 services:
+  # Orderer 1
   orderer1.etsi.com:
     container_name: orderer1.etsi.com
-    image: hyperledger/fabric-orderer:2.4.3
+    image: hyperledger/fabric-orderer:2.4.1
     environment:
       - ORDERER_GENERAL_LOGLEVEL=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -15,21 +16,30 @@ services:
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
-      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_CLUSTER_LISTENPORT=7051
+      - ORDERER_GENERAL_CLUSTER_SERVERCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_SERVERPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    volumes:
+      - ../crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/msp:/var/hyperledger/orderer/msp
+      - ../crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/tls:/var/hyperledger/orderer/tls
+      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ../config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
     ports:
       - 7050:7050
-    volumes:
-      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/msp:/var/hyperledger/orderer/msp
-      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/tls:/var/hyperledger/orderer/tls
-      - ./config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
-      - ./channel-artifacts/genesis.block:/etc/hyperledger/fabric/genesisblock
     networks:
       - etsi-network
 
+  # Orderer 2
   orderer2.etsi.com:
     container_name: orderer2.etsi.com
-    image: hyperledger/fabric-orderer:2.4.3
+    image: hyperledger/fabric-orderer:2.4.1
     environment:
       - ORDERER_GENERAL_LOGLEVEL=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -37,21 +47,30 @@ services:
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
-      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_CLUSTER_LISTENPORT=8051
+      - ORDERER_GENERAL_CLUSTER_SERVERCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_SERVERPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    volumes:
+      - ../crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/msp:/var/hyperledger/orderer/msp
+      - ../crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/tls:/var/hyperledger/orderer/tls
+      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ../config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
     ports:
       - 8050:8050
-    volumes:
-      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/msp:/var/hyperledger/orderer/msp
-      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/tls:/var/hyperledger/orderer/tls
-      - ./config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
-      - ./channel-artifacts/genesis.block:/etc/hyperledger/fabric/genesisblock
     networks:
       - etsi-network
 
+  # Orderer 3
   orderer3.etsi.com:
     container_name: orderer3.etsi.com
-    image: hyperledger/fabric-orderer:2.4.3
+    image: hyperledger/fabric-orderer:2.4.1
     environment:
       - ORDERER_GENERAL_LOGLEVEL=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -59,34 +78,51 @@ services:
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
-      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
-      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_CLUSTER_LISTENPORT=9051
+      - ORDERER_GENERAL_CLUSTER_SERVERCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_SERVERPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    volumes:
+      - ../crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/msp:/var/hyperledger/orderer/msp
+      - ../crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls:/var/hyperledger/orderer/tls
+      - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ../config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
     ports:
       - 9050:9050
-    volumes:
-      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/msp:/var/hyperledger/orderer/msp
-      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls:/var/hyperledger/orderer/tls
-      - ./config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
-      - ./channel-artifacts/genesis.block:/etc/hyperledger/fabric/genesisblock
     networks:
       - etsi-network
 
-  peer0.buyer.etsi.com:
-    container_name: peer0.buyer.etsi.com
-    image: hyperledger/fabric-peer:2.4.3
+  # CouchDB
+  couchdb0:
+    container_name: couchdb0
+    image: couchdb:3.2.2
     environment:
-      - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
-      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
-      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
-      - CORE_PEER_ID=peer0.buyer.etsi.com
-      - CORE_PEER_ADDRESS=peer0.buyer.etsi.com:7051
-      - CORE_PEER_LOCALMSPID=BuyerMSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpw
     ports:
-      - 7051:7051
+      - "5984:5984"
+    networks:
+      - etsi-network
+
+  # CLI tools
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:2.4.1
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - FABRIC_LOGGING_SPEC=INFO
     volumes:
-      - ./crypto-config/peerOrganizations/buyer.etsi.com/peers/peer0.buyer.etsi.com/msp:/etc/hyperledger/fabric/msp
-      - ./crypto-config/peerOrganizations/buyer.etsi.com/peers/peer0.buyer.etsi.com/tls:/etc/hyperledger/fabric/tls
+      - ../crypto-config:/etc/hyperledger/fabric/crypto-config
+      - ../channel-artifacts:/etc/hyperledger/fabric/channel-artifacts
+      - ../chaincode:/opt/gopath/src/github.com/chaincode
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     networks:
       - etsi-network

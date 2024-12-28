@@ -1,4 +1,6 @@
+---
 Organizations:
+
   - &OrdererOrg
     Name: OrdererOrg
     ID: OrdererMSP
@@ -14,16 +16,71 @@ Organizations:
         Type: Signature
         Rule: "OR('OrdererMSP.admin')"
 
-Capabilities:
-  Channel: &ChannelCapabilities
-    V2_0: true
+  - &BuyerOrg
+    Name: BuyerOrg
+    ID: BuyerMSP
+    MSPDir: crypto-config/peerOrganizations/buyer.etsi.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('BuyerMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('BuyerMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('BuyerMSP.admin')"
+    AnchorPeers:
+      - Host: peer0.buyer.etsi.com
+        Port: 7051
 
-Application: &ApplicationDefaults
-  Capabilities:
-    <<: *ChannelCapabilities
+  - &SellerOrg
+    Name: SellerOrg
+    ID: SellerMSP
+    MSPDir: crypto-config/peerOrganizations/seller.etsi.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('SellerMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('SellerMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('SellerMSP.admin')"
+    AnchorPeers:
+      - Host: peer0.seller.etsi.com
+        Port: 8051
 
-Orderer: &OrdererDefaults
+  - &ClientOrg
+    Name: ClientOrg
+    ID: ClientMSP
+    MSPDir: crypto-config/peerOrganizations/client.etsi.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('ClientMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('ClientMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('ClientMSP.admin')"
+    AnchorPeers:
+      - Host: peer0.client.etsi.com
+        Port: 9051
+
+Orderer:
   OrdererType: etcdraft
+  Addresses:
+    - orderer1.etsi.com:7050
+    - orderer2.etsi.com:8050
+    - orderer3.etsi.com:9050
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 98 MB
+    PreferredMaxBytes: 512 KB
   EtcdRaft:
     Consenters:
       - Host: orderer1.etsi.com
@@ -38,36 +95,77 @@ Orderer: &OrdererDefaults
         Port: 9050
         ClientTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls/server.crt
         ServerTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls/server.crt
-  BatchTimeout: 2s
-  BatchSize:
-    MaxMessageCount: 10
-    AbsoluteMaxBytes: 99 MB
-    PreferredMaxBytes: 512 KB
+  Policies:
+    Readers:
+      Type: Signature
+      Rule: "OR('OrdererMSP.member')"
+    Writers:
+      Type: Signature
+      Rule: "OR('OrdererMSP.member')"
+    Admins:
+      Type: Signature
+      Rule: "OR('OrdererMSP.admin')"
+    BlockValidation:
+      Type: Signature
+      Rule: "OR('OrdererMSP.member')"
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Application: &ApplicationCapabilities
+    V2_0: true
+
+Application:
+  Organizations:
+  Policies:
+    Readers:
+      Type: Signature
+      Rule: "OR('BuyerMSP.member', 'SellerMSP.member', 'ClientMSP.member')"
+    Writers:
+      Type: Signature
+      Rule: "OR('BuyerMSP.member', 'SellerMSP.member', 'ClientMSP.member')"
+    Admins:
+      Type: Signature
+      Rule: "OR('BuyerMSP.admin', 'SellerMSP.admin', 'ClientMSP.admin')"
+
+Channel:
+  Policies:
+    Readers:
+      Type: Signature
+      Rule: "OR('BuyerMSP.member', 'SellerMSP.member', 'ClientMSP.member')"
+    Writers:
+      Type: Signature
+      Rule: "OR('BuyerMSP.member', 'SellerMSP.member', 'ClientMSP.member')"
+    Admins:
+      Type: Signature
+      Rule: "OR('BuyerMSP.admin', 'SellerMSP.admin', 'ClientMSP.admin')"
+  Capabilities:
+    <<: *ChannelCapabilities
 
 Profiles:
   SystemChannel:
+    <<: *Channel
     Orderer:
-      OrdererType: etcdraft
-      Addresses:
-        - orderer1.etsi.com:7050
-        - orderer2.etsi.com:8050
-        - orderer3.etsi.com:9050
+      <<: *Orderer
       Organizations:
-        - &OrdererOrg
-          Name: OrdererOrg
-          ID: OrdererMSP
-          MSPDir: crypto-config/ordererOrganizations/etsi.com/msp
+        - <<: *OrdererOrg
+    Capabilities:
+      <<: *ChannelCapabilities
     Consortiums:
       SampleConsortium:
         Organizations:
-          - &BuyerOrg
-            Name: BuyerOrg
-            ID: BuyerMSP
-            MSPDir: crypto-config/peerOrganizations/buyer.etsi.com/msp
-
-  BasicChannel:
+          - <<: *BuyerOrg
+          - <<: *SellerOrg
+          - <<: *ClientOrg
+  BuyerSellerChannel:
     Consortium: SampleConsortium
     Application:
+      <<: *Application
       Organizations:
-        - *BuyerOrg
-        - *SellerOrg
+        - <<: *BuyerOrg
+        - <<: *SellerOrg
+        - <<: *ClientOrg
+      Capabilities:
+        <<: *ApplicationCapabilities

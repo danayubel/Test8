@@ -1,3 +1,4 @@
+---
 General:
   ListenAddress: 0.0.0.0
   ListenPort: 7050
@@ -10,13 +11,60 @@ General:
     ClientAuthRequired: false
   Cluster:
     ListenAddress: 0.0.0.0
+    ListenPort: 7051
     ServerCertificate: /var/hyperledger/orderer/tls/server.crt
     ServerPrivateKey: /var/hyperledger/orderer/tls/server.key
-    RootCAs:
-      - /var/hyperledger/orderer/tls/ca.crt
     ClientCertificate: /var/hyperledger/orderer/tls/server.crt
     ClientPrivateKey: /var/hyperledger/orderer/tls/server.key
+    RootCAs:
+      - /var/hyperledger/orderer/tls/ca.crt
 
 FileLedger:
   Location: /var/hyperledger/production/orderer
   Prefix: hyperledger-fabric-ordererledger
+
+Debug:
+  BroadcastTraceDir: /var/hyperledger/orderer/broadcast-trace
+  DeliverTraceDir: /var/hyperledger/orderer/deliver-trace
+
+Consensus:
+  WALDir: /var/hyperledger/production/orderer/etcdraft/wal
+  SnapDir: /var/hyperledger/production/orderer/etcdraft/snapshot
+  Type: etcdraft
+  EtcdRaft:
+    Consenters:
+      - Host: orderer1.etsi.com
+        Port: 7051
+        ClientTLSCert: /var/hyperledger/orderer/tls/server.crt
+        ServerTLSCert: /var/hyperledger/orderer/tls/server.crt
+      - Host: orderer2.etsi.com
+        Port: 8051
+        ClientTLSCert: /var/hyperledger/orderer/tls/server.crt
+        ServerTLSCert: /var/hyperledger/orderer/tls/server.crt
+      - Host: orderer3.etsi.com
+        Port: 9051
+        ClientTLSCert: /var/hyperledger/orderer/tls/server.crt
+        ServerTLSCert: /var/hyperledger/orderer/tls/server.crt
+    Options:
+      TickInterval: 500ms
+      ElectionTick: 10
+      HeartbeatTick: 1
+      MaxInflightBlocks: 5
+      SnapshotIntervalSize: 20 MB
+
+Operations:
+  ListenAddress: 0.0.0.0:9443
+  TLS:
+    Enabled: true
+    PrivateKey: /var/hyperledger/orderer/tls/server.key
+    Certificate: /var/hyperledger/orderer/tls/server.crt
+    RootCAs:
+      - /var/hyperledger/orderer/tls/ca.crt
+
+Metrics:
+  Provider: prometheus
+  Statsd:
+    Network: udp
+    Address: 127.0.0.1:8125
+    WriteInterval: 10s
+    Prefix: orderer

@@ -1,7 +1,31 @@
+# core.yaml
+
+# Peer Configuration
 peer:
-  id: peer0.buyer.etsi.com
-  networkId: etsi-network
-  address: peer0.buyer.etsi.com:7051
+  id: ""
+  networkId: dev
+  address: 0.0.0.0:7051
+  listenAddress: 0.0.0.0:7051
+  chaincodeListenAddress: 0.0.0.0:7052
+  chaincodeAddress: peer0.org1.example.com:7052
+  gossip:
+    bootstrap: ""
+    useLeaderElection: true
+    orgLeader: false
+    endpoint: ""
+    maxBlockCountToStore: 100
+    maxPropagationBurstLatency: 10ms
+    maxPropagationBurstSize: 10
+    pullInterval: 4s
+    pullPeerCount: 3
+    requestStateInfoInterval: 4s
+    publishCertPeriod: 5s
+    skipBlockVerification: false
+    dialTimeout: 3s
+    connTimeout: 2s
+    recvBuffSize: 20
+    sendBuffSize: 20
+    handshakeTimeout: 2s
   tls:
     enabled: true
     cert:
@@ -10,3 +34,51 @@ peer:
       file: /etc/hyperledger/fabric/tls/server.key
     rootcert:
       file: /etc/hyperledger/fabric/tls/ca.crt
+
+# Logging
+logging:
+  level: INFO
+  format: "%{color}%{time:15:04:05.000} [%{shortpkg}] %{shortfunc} -> %{level:.4s} %{id:03x} %{message}%{color:reset}"
+  gorm: ERROR
+
+# Chaincode
+chaincode:
+  golang:
+    runtime: golang:1.17-alpine
+  builder: $(DOCKER_NS)/fabric-ccenv:latest
+  pull: false
+
+# Ledger
+ledger:
+  state:
+    couchDBConfig:
+      couchDBAddress: couchdb0:5984
+      username: admin
+      password: adminpw
+      maxRetries: 3
+      maxRetriesOnStartup: 5
+      requestTimeout: 35s
+      createGlobalChangesDB: false
+
+# Metrics
+metrics:
+  provider: prometheus
+
+# Operations
+operations:
+  listenAddress: 127.0.0.1:9443
+  tls:
+    enabled: false
+
+# BCCSP
+bccsp:
+  default: SW
+  sw:
+    hash: SHA2
+    security: 256
+  pkcs11:
+    library: ""
+    label: ""
+    pin: ""
+    hash: ""
+    security: 0
