@@ -1,0 +1,73 @@
+Organizations:
+  - &OrdererOrg
+    Name: OrdererOrg
+    ID: OrdererMSP
+    MSPDir: crypto-config/ordererOrganizations/etsi.com/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererMSP.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererMSP.admin')"
+
+Capabilities:
+  Channel: &ChannelCapabilities
+    V2_0: true
+
+Application: &ApplicationDefaults
+  Capabilities:
+    <<: *ChannelCapabilities
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  EtcdRaft:
+    Consenters:
+      - Host: orderer1.etsi.com
+        Port: 7050
+        ClientTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/tls/server.crt
+        ServerTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/tls/server.crt
+      - Host: orderer2.etsi.com
+        Port: 8050
+        ClientTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/tls/server.crt
+        ServerTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/tls/server.crt
+      - Host: orderer3.etsi.com
+        Port: 9050
+        ClientTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls/server.crt
+        ServerTLSCert: crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls/server.crt
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+
+Profiles:
+  SystemChannel:
+    Orderer:
+      OrdererType: etcdraft
+      Addresses:
+        - orderer1.etsi.com:7050
+        - orderer2.etsi.com:8050
+        - orderer3.etsi.com:9050
+      Organizations:
+        - &OrdererOrg
+          Name: OrdererOrg
+          ID: OrdererMSP
+          MSPDir: crypto-config/ordererOrganizations/etsi.com/msp
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - &BuyerOrg
+            Name: BuyerOrg
+            ID: BuyerMSP
+            MSPDir: crypto-config/peerOrganizations/buyer.etsi.com/msp
+
+  BasicChannel:
+    Consortium: SampleConsortium
+    Application:
+      Organizations:
+        - *BuyerOrg
+        - *SellerOrg

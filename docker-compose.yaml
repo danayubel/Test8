@@ -1,0 +1,92 @@
+version: '2.4'
+
+networks:
+  etsi-network:
+    driver: bridge
+
+services:
+  orderer1.etsi.com:
+    container_name: orderer1.etsi.com
+    image: hyperledger/fabric-orderer:2.4.3
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+    ports:
+      - 7050:7050
+    volumes:
+      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer1.etsi.com/tls:/var/hyperledger/orderer/tls
+      - ./config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
+      - ./channel-artifacts/genesis.block:/etc/hyperledger/fabric/genesisblock
+    networks:
+      - etsi-network
+
+  orderer2.etsi.com:
+    container_name: orderer2.etsi.com
+    image: hyperledger/fabric-orderer:2.4.3
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=8050
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+    ports:
+      - 8050:8050
+    volumes:
+      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer2.etsi.com/tls:/var/hyperledger/orderer/tls
+      - ./config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
+      - ./channel-artifacts/genesis.block:/etc/hyperledger/fabric/genesisblock
+    networks:
+      - etsi-network
+
+  orderer3.etsi.com:
+    container_name: orderer3.etsi.com
+    image: hyperledger/fabric-orderer:2.4.3
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=INFO
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=9050
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=/var/hyperledger/orderer/tls/ca.crt
+      - FABRIC_CFG_PATH=/etc/hyperledger/fabric
+    ports:
+      - 9050:9050
+    volumes:
+      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/etsi.com/orderers/orderer3.etsi.com/tls:/var/hyperledger/orderer/tls
+      - ./config/orderer.yaml:/etc/hyperledger/fabric/orderer.yaml
+      - ./channel-artifacts/genesis.block:/etc/hyperledger/fabric/genesisblock
+    networks:
+      - etsi-network
+
+  peer0.buyer.etsi.com:
+    container_name: peer0.buyer.etsi.com
+    image: hyperledger/fabric-peer:2.4.3
+    environment:
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.buyer.etsi.com
+      - CORE_PEER_ADDRESS=peer0.buyer.etsi.com:7051
+      - CORE_PEER_LOCALMSPID=BuyerMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp
+    ports:
+      - 7051:7051
+    volumes:
+      - ./crypto-config/peerOrganizations/buyer.etsi.com/peers/peer0.buyer.etsi.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/buyer.etsi.com/peers/peer0.buyer.etsi.com/tls:/etc/hyperledger/fabric/tls
+    networks:
+      - etsi-network

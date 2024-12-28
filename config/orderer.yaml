@@ -1,0 +1,22 @@
+General:
+  ListenAddress: 0.0.0.0
+  ListenPort: 7050
+  TLS:
+    Enabled: true
+    PrivateKey: /var/hyperledger/orderer/tls/server.key
+    Certificate: /var/hyperledger/orderer/tls/server.crt
+    RootCAs:
+      - /var/hyperledger/orderer/tls/ca.crt
+    ClientAuthRequired: false
+  Cluster:
+    ListenAddress: 0.0.0.0
+    ServerCertificate: /var/hyperledger/orderer/tls/server.crt
+    ServerPrivateKey: /var/hyperledger/orderer/tls/server.key
+    RootCAs:
+      - /var/hyperledger/orderer/tls/ca.crt
+    ClientCertificate: /var/hyperledger/orderer/tls/server.crt
+    ClientPrivateKey: /var/hyperledger/orderer/tls/server.key
+
+FileLedger:
+  Location: /var/hyperledger/production/orderer
+  Prefix: hyperledger-fabric-ordererledger

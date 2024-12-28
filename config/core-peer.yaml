@@ -1,0 +1,12 @@
+peer:
+  id: peer0.buyer.etsi.com
+  networkId: etsi-network
+  address: peer0.buyer.etsi.com:7051
+  tls:
+    enabled: true
+    cert:
+      file: /etc/hyperledger/fabric/tls/server.crt
+    key:
+      file: /etc/hyperledger/fabric/tls/server.key
+    rootcert:
+      file: /etc/hyperledger/fabric/tls/ca.crt
